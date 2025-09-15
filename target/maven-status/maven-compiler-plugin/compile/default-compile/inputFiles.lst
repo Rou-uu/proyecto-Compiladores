@@ -1,0 +1,12 @@
+/Users/rou/Desktop/7moSemestre/Compiladores/proyecto-Compiladores/src/main/java/com/compiler/lexer/regex/ShuntingYard.java
+/Users/rou/Desktop/7moSemestre/Compiladores/proyecto-Compiladores/src/main/java/com/compiler/lexer/nfa/State.java
+/Users/rou/Desktop/7moSemestre/Compiladores/proyecto-Compiladores/src/main/java/com/compiler/lexer/nfa/NFA.java
+/Users/rou/Desktop/7moSemestre/Compiladores/proyecto-Compiladores/src/main/java/com/compiler/lexer/dfa/DFA.java
+/Users/rou/Desktop/7moSemestre/Compiladores/proyecto-Compiladores/src/main/java/com/compiler/lexer/NfaSimulator.java
+/Users/rou/Desktop/7moSemestre/Compiladores/proyecto-Compiladores/src/main/java/com/compiler/lexer/DfaMinimizer.java
+/Users/rou/Desktop/7moSemestre/Compiladores/proyecto-Compiladores/src/main/java/com/compiler/lexer/regex/RegexParser.java
+/Users/rou/Desktop/7moSemestre/Compiladores/proyecto-Compiladores/src/main/java/com/compiler/Main.java
+/Users/rou/Desktop/7moSemestre/Compiladores/proyecto-Compiladores/src/main/java/com/compiler/lexer/DfaSimulator.java
+/Users/rou/Desktop/7moSemestre/Compiladores/proyecto-Compiladores/src/main/java/com/compiler/lexer/dfa/DfaState.java
+/Users/rou/Desktop/7moSemestre/Compiladores/proyecto-Compiladores/src/main/java/com/compiler/lexer/NfaToDfaConverter.java
+/Users/rou/Desktop/7moSemestre/Compiladores/proyecto-Compiladores/src/main/java/com/compiler/lexer/nfa/Transition.java

@@ -4,3 +4,6 @@
 
 # Logs
 *.log
+
+# Archivos propios de Mac
+.DS_Store
