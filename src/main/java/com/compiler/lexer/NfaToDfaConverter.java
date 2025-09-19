@@ -161,6 +161,15 @@ public class NfaToDfaConverter {
 		return null;
 	}
 
+    /**
+     * Converts a ComplexNFA (containing multiple lexical rules) to a DFA using subset construction.
+     * This method handles the complexity of multiple token types and priorities by selecting
+     * the highest priority token type for states that could match multiple rules.
+     *
+     * @param complexNFA the ComplexNFA containing multiple rules with priorities
+     * @param alphabet   the input alphabet (set of characters)
+     * @return the resulting DFA with proper token type assignments based on rule priorities
+     */
     public static DFA convertComplexNfaToDfa(ComplexNFA complexNFA, Set<Character> alphabet) {
         List<DfaState> dfaStates = new ArrayList<>();
 		Queue<DfaState> unprocessed = new LinkedList<>();
@@ -190,6 +199,7 @@ public class NfaToDfaConverter {
 			}
     	}
 
+		// Assign final states and token types based on priority
 		for (DfaState dfaState : dfaStates) {
 			TokenType best = null;
 			int bestPriority = Integer.MAX_VALUE;

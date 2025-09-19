@@ -13,13 +13,40 @@ import com.compiler.lexer.dfa.DFA;
 import com.compiler.lexer.dfa.DfaState;
 import com.compiler.lexer.tokenizer.MultiRuleBuilder.ComplexNFA;
 
+/**
+ * A lexical analyzer that converts input text into a sequence of tokens.
+ * The tokenizer reads lexical rules from a configuration file, builds a DFA
+ * from those rules, and uses it to recognize tokens in input text.
+ *
+ * @author Rubén Alfaro
+ * @version 1.0
+ */
 public class Tokenizer {
+    /**
+     * Represents a potential token match found during tokenization.
+     * Used internally to track the best match found so far.
+     */
     private static class TokenMatch {
+        /** The type of token that was matched. */
         final TokenType tokenType;
+
+        /** The actual text value that was matched. */
         final String value;
+
+        /** The starting position of the match in the input. */
         final int startPosition;
+
+        /** The ending position of the match in the input. */
         final int endPosition;
-        
+
+        /**
+         * Constructs a new TokenMatch.
+         *
+         * @param tokenType     the type of the matched token
+         * @param value         the matched text value
+         * @param startPosition the start position in the input
+         * @param endPosition   the end position in the input
+         */
         TokenMatch(TokenType tokenType, String value, int startPosition, int endPosition) {
             this.tokenType = tokenType;
             this.value = value;
@@ -28,20 +55,38 @@ public class Tokenizer {
         }
     }
 
+    /**
+     * The DFA used for token recognition.
+     */
     private final DFA dfa;
 
+    /**
+     * The list of lexical rules loaded from the configuration file.
+     */
     private final List<LexRule> rules;
 
+    /**
+     * The alphabet (set of characters) extracted from all rules.
+     */
     private final Set<Character> alphabet;
 
-    private final String rulesFile = "resources/testRules.txt"; // Location of the file with the rules
+    /**
+     * Location of the file containing the lexical rules.
+     */
+    private final String rulesFile = "resources/testRules.txt";
 
+    /**
+     * Constructs a new Tokenizer by loading rules from the default configuration file
+     * and building the corresponding DFA for token recognition.
+     *
+     * @throws IllegalStateException if no lexical rules are found in the configuration file
+     */
     public Tokenizer() {
         rules = findRulesFromFile(rulesFile);
         if (rules == null || rules.isEmpty()) {
             throw new IllegalStateException("No lexical rules found in the specified file: " + rulesFile);
         }
-        
+
         alphabet = extractAlphabet(rules);
 
         MultiRuleBuilder builder = new MultiRuleBuilder();
@@ -49,6 +94,15 @@ public class Tokenizer {
         dfa = NfaToDfaConverter.convertComplexNfaToDfa(complexNFA, alphabet);
     }
 
+    /**
+     * Tokenizes the given input string into a list of tokens.
+     * The input is split by whitespace, and each word is matched against
+     * the configured lexical rules using the DFA.
+     *
+     * @param input the input string to tokenize
+     * @return a list of tokens recognized from the input
+     * @throws IllegalArgumentException if an unrecognized token is encountered
+     */
     public List<Token> tokenize(String input) {
         ArrayList<Token> tokens = new ArrayList<>();
 
@@ -73,6 +127,14 @@ public class Tokenizer {
         return tokens;
     }
 
+    /**
+     * Finds the longest possible token match starting at the given position
+     * in the input string using the DFA.
+     *
+     * @param input the input string to match against
+     * @param pos   the starting position in the input string
+     * @return the longest TokenMatch found, or null if no match is possible
+     */
     public TokenMatch longestMatch(String input, int pos) {
         DfaState curr = dfa.startState;
         TokenMatch lastMatch = null;
@@ -105,14 +167,32 @@ public class Tokenizer {
         return lastMatch;
     }
 
+    /**
+     * Returns a copy of the lexical rules used by this tokenizer.
+     *
+     * @return a new list containing copies of all lexical rules
+     */
     public List<LexRule> getRules() {
         return new ArrayList<>(rules);
     }
 
+    /**
+     * Returns the alphabet (set of characters) extracted from the lexical rules.
+     *
+     * @return the set of characters that can appear in tokens
+     */
     public Set<Character> getAlphabet() {
         return alphabet;
     }
 
+    /**
+     * Reads and parses lexical rules from the specified file.
+     * Each line in the file should be in the format: "regex;tokenName"
+     * Empty lines and lines starting with '#' are ignored as comments.
+     *
+     * @param filePath the path to the rules file
+     * @return a list of LexRule objects parsed from the file
+     */
     private ArrayList<LexRule> findRulesFromFile(String filePath) {
         ArrayList<LexRule> rules = new ArrayList<>();
         ArrayList<String> lines = FileReader.readLines(filePath);
@@ -140,6 +220,13 @@ public class Tokenizer {
         return rules;
     }
 
+    /**
+     * Expands character classes in regex patterns (e.g., [a-z] becomes (a|b|c|...)).
+     * Character classes are enclosed in square brackets and may contain ranges.
+     *
+     * @param regex the regex pattern that may contain character classes
+     * @return the regex with character classes expanded to union patterns
+     */
     private String expandCharacterClasses(String regex) {
         StringBuilder result = new StringBuilder();
         int i = 0;
@@ -169,6 +256,13 @@ public class Tokenizer {
         return result.toString();
     }
 
+    /**
+     * Expands the content of a single character class into a union pattern.
+     * Handles both individual characters and character ranges (e.g., "a-z").
+     *
+     * @param content the content inside square brackets (e.g., "a-zA-Z0-9")
+     * @return a union pattern string (e.g., "a|b|c|...|A|B|C|...|0|1|2|...")
+     */
     private String expandCharacterClass(String content) {
         ArrayList<Character> characters = new ArrayList<>();
         int i = 0;
@@ -210,6 +304,13 @@ public class Tokenizer {
         }
     }
 
+    /**
+     * Extracts the alphabet (set of input characters) from all lexical rules.
+     * Regex operators are excluded from the alphabet, only literal characters are included.
+     *
+     * @param rules the list of lexical rules to extract characters from
+     * @return a set containing all literal characters that can appear in tokens
+     */
     private Set<Character> extractAlphabet(List<LexRule> rules) {
         Set<Character> alphabet = new HashSet<>();
 

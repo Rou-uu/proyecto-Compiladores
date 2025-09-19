@@ -1,6 +1,9 @@
+# In this file we define the lexical rules used for the tokenizer.
+# The tokenizer accepts classes like [a-zA-Z0-9] and regex expresions like (a|b)*.
+
 ^;AND
 $;OR
 ~;NOT
 <=>;IFF
 (a|b)+;VAR
-[0-9]*[a-z];NUM
+[0-9A-Z]*[a-z];NUM

@@ -13,7 +13,7 @@ public class TokenizerMain {
 
     public static void main(String[] args) {
         // CHANGE THIS INPUT TO TEST DIFFERENT STRINGS
-        String input = "abba <=> ba $ 96757646a";
+        String input = "abba <=> ba $ 967A57646a";
 
         System.out.println("=== Tokenizer Test ===");
         System.out.println("Input: '" + input + "'");

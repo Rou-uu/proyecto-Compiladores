@@ -122,15 +122,34 @@ public class DfaState {
         this.isFinal = isFinal;
     }
 
+    /**
+     * Sets the finality of the DFA state along with its associated token type.
+     * This is used for tokenization where final states need to know which token type they represent.
+     *
+     * @param isFinal   True if this state is a final state, false otherwise.
+     * @param tokenType The token type associated with this final state.
+     */
     public void setFinal(boolean isFinal, TokenType tokenType) {
         this.isFinal = isFinal;
         this.tokenType = tokenType;
     }
 
+    /**
+     * Returns the token type associated with this DFA state.
+     * This is only meaningful for final states in tokenization contexts.
+     *
+     * @return The token type for this state, or null if not set.
+     */
     public TokenType getTokenType() {
         return tokenType;
     }
 
+    /**
+     * Sets the token type for this DFA state.
+     * This is typically used for final states to indicate which kind of token they recognize.
+     *
+     * @param tokenType The token type to associate with this state.
+     */
     public void setTokenType(TokenType tokenType) {
         this.tokenType = tokenType;
     }
