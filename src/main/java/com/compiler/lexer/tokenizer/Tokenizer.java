@@ -210,49 +210,6 @@ public class Tokenizer {
         }
     }
 
-    /* 
-    private String expandCharacterClasses(String regex) {
-        if (!regex.startsWith("[") || !regex.endsWith("]")) {
-            return regex; // Not a character class
-        }
-
-        String content = regex.substring(1, regex.length() - 1);
-        ArrayList<Character> characters = new ArrayList<>();
-
-        for (int i = 0; i < content.length(); i++) {
-            char c = content.charAt(i);
-
-            // Handle ranges like a-z, A-Z, 0-9
-            if (i + 2 < content.length() && content.charAt(i + 1) == '-') {
-                char start = c;
-                char end = content.charAt(i + 2);
-                for (char rangeChar = start; rangeChar <= end; rangeChar++) {
-                    characters.add(rangeChar);
-                }
-                i += 2; // Skip the '-' and end character
-            } else {
-                // Single character like +, -, /, .
-                characters.add(c);
-            }
-        }
-
-        // Convert to union pattern: a|b|c|...
-        if (characters.size() == 1) {
-            return String.valueOf(characters.get(0));
-        } else {
-            StringBuilder result = new StringBuilder();
-            for (int i = 0; i < characters.size(); i++) {
-                if (i > 0) {
-                    result.append("|");
-                }
-                result.append(characters.get(i));
-            }
-            return result.toString();
-        }
-    }
-
-    */
-
     private Set<Character> extractAlphabet(List<LexRule> rules) {
         Set<Character> alphabet = new HashSet<>();
 
