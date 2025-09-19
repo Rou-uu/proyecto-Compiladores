@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.compiler.lexer.nfa.State;
+import com.compiler.lexer.tokenizer.TokenType;
 
 /**
  * DfaState
@@ -48,6 +49,10 @@ public class DfaState {
      */
     public final Map<Character, DfaState> transitions;
 
+
+    public TokenType tokenType;
+
+
     /**
      * Constructs a new DFA state.
      * 
@@ -58,6 +63,7 @@ public class DfaState {
         this.nfaStates = nfaStates;
         this.transitions = new HashMap<>();
         this.isFinal = false;
+        this.tokenType = null;
     }
 
     /**
@@ -104,7 +110,7 @@ public class DfaState {
      */
     @Override
     public String toString() {
-        return "{" + "id = " + id + ", isFinal = " + isFinal + ", nfaStates = " + nfaStates + '}';
+        return "{" + "id = " + id + ", isFinal = " + isFinal + (tokenType != null ? ", tokenType = " + tokenType : "") + ", nfaStates = " + nfaStates + '}';
     }
 
     /**
@@ -114,6 +120,19 @@ public class DfaState {
      */
     public void setFinal(boolean isFinal) {
         this.isFinal = isFinal;
+    }
+
+    public void setFinal(boolean isFinal, TokenType tokenType) {
+        this.isFinal = isFinal;
+        this.tokenType = tokenType;
+    }
+
+    public TokenType getTokenType() {
+        return tokenType;
+    }
+
+    public void setTokenType(TokenType tokenType) {
+        this.tokenType = tokenType;
     }
 
     /**

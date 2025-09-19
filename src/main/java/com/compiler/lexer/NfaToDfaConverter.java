@@ -12,6 +12,9 @@ import com.compiler.lexer.dfa.DFA;
 import com.compiler.lexer.dfa.DfaState;
 import com.compiler.lexer.nfa.NFA;
 import com.compiler.lexer.nfa.State;
+import com.compiler.lexer.tokenizer.Token;
+import com.compiler.lexer.tokenizer.TokenType;
+import com.compiler.lexer.tokenizer.MultiRuleBuilder.ComplexNFA;
 
 /**
  * NfaToDfaConverter
@@ -156,5 +159,58 @@ public class NfaToDfaConverter {
 			}
 		}
 		return null;
+	}
+
+    public static DFA convertComplexNfaToDfa(ComplexNFA complexNFA, Set<Character> alphabet) {
+        List<DfaState> dfaStates = new ArrayList<>();
+		Queue<DfaState> unprocessed = new LinkedList<>();
+
+		Set<State> initClosure = epsilonClosure(Set.of(complexNFA.nfa.startState));
+		DfaState startState = new DfaState(initClosure);
+		dfaStates.add(startState);
+		unprocessed.add(startState);
+
+		while (!unprocessed.isEmpty()) {
+			DfaState curr = unprocessed.poll();
+
+			for (char symbol : alphabet) {
+				Set<State> moved = move(curr.nfaStates, symbol);
+				Set<State> closure = epsilonClosure(moved);
+
+				if (!closure.isEmpty()) {
+					DfaState target = findDfaState(dfaStates, closure);
+					if (target == null) {
+						target = new DfaState(closure);
+						dfaStates.add(target);
+						unprocessed.add(target);
+					}
+
+					curr.addTransition(symbol, target);
+				}
+			}
+    	}
+
+		for (DfaState dfaState : dfaStates) {
+			TokenType best = null;
+			int bestPriority = Integer.MAX_VALUE;
+
+			for (State nfaState : dfaState.nfaStates) {
+				if (complexNFA.isFinalState(nfaState)) {
+					Integer priority = complexNFA.getPriority(nfaState);
+					TokenType tokenType = complexNFA.getTokenType(nfaState);
+
+					if (priority != null && priority < bestPriority) {
+						bestPriority = priority;
+						best = tokenType;
+					}
+				}
+			}
+
+			if (best != null) {
+				dfaState.setFinal(true, best);
+			}
+		}
+
+		return new DFA(startState, dfaStates);
 	}
 }

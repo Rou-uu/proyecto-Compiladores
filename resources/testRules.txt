@@ -1,0 +1,6 @@
+^;AND
+$;OR
+~;NOT
+<=>;IFF
+(a|b)+;VAR
+[0-9]*[a-z];NUM
