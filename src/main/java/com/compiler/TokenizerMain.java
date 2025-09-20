@@ -41,7 +41,7 @@ public class TokenizerMain {
             for (int i = 0; i < tokens.size(); i++) {
                 Token token = tokens.get(i);
                 System.out.println("Token " + (i + 1) + ":");
-                System.out.println("  Type: " + token.getType().getName());
+                System.out.println("  Type: " + (token.getType() != null ? token.getType().getName() : "NULL"));
                 System.out.println("  Value: '" + token.getVal() + "'");
                 System.out.println();
             }

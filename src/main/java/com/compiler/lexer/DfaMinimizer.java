@@ -27,6 +27,7 @@ import java.util.Set;
 import com.compiler.lexer.dfa.DFA;
 import com.compiler.lexer.dfa.DfaState;
 import com.compiler.lexer.nfa.State;
+import com.compiler.lexer.tokenizer.TokenType;
 
 /**
  * Implements DFA minimization using the table-filling algorithm.
@@ -141,6 +142,142 @@ public class DfaMinimizer {
 
             DfaState newState = new DfaState(combinedNfaStates);
             newState.setFinal(isFinal);
+            minStates.add(newState);
+
+            // Map all states in this partition to the new state
+            for (DfaState state : partition) {
+                stMapping.put(state, newState);
+            }
+        }
+
+        // Reconstruct transitions for minimized states
+        for (DfaState newState : minStates) {
+            // Find a representative from the original states
+            DfaState rep = null;
+            for (Map.Entry<DfaState, DfaState> entry : stMapping.entrySet()) {
+                if (entry.getValue().equals(newState)) {
+                    rep = entry.getKey();
+                    break;
+                }
+            }
+
+            if (rep != null) {
+                for (char symbol : alphabet) {
+                    DfaState target = rep.getTransition(symbol);
+                    if (target != null) {
+                        DfaState newTarget = stMapping.get(target);
+                        if (newTarget != null) {
+                            newState.addTransition(symbol, newTarget);
+                        }
+                    }
+                }
+            }
+        }
+
+        // Set start state
+        DfaState newStartState = stMapping.get(originalDfa.startState);
+
+        return new DFA(newStartState, minStates);
+    }
+
+    /**
+     * Minimizes a given DFA with token types using the table-filling algorithm.
+     * This version preserves token types during minimization.
+     *
+     * @param originalDfa The original DFA to be minimized.
+     * @param alphabet    The set of input symbols.
+     * @return A minimized DFA equivalent to the original with preserved token types.
+     */
+    public static DFA minimizeComplexDfa(DFA originalDfa, Set<Character> alphabet) {
+        List<DfaState> allStates = new ArrayList<>(originalDfa.allStates);
+
+        // Initialize table of state pairs
+        Map<Pair, Boolean> table = new HashMap<>();
+
+        // Mark pairs as distinguishable if one is final and the other is not
+        // or if they have different token types
+        for (int i = 0; i < allStates.size(); i++) {
+            for (int j = i + 1; j < allStates.size(); j++) {
+                DfaState s1 = allStates.get(i);
+                DfaState s2 = allStates.get(j);
+                Pair pair = new Pair(s1, s2);
+
+                if (s1.isFinal() != s2.isFinal()) {
+                    table.put(pair, true);
+                } else if (s1.isFinal() && s2.isFinal() &&
+                          !Objects.equals(s1.getTokenType(), s2.getTokenType())) {
+                    // Different token types make states distinguishable
+                    table.put(pair, true);
+                } else {
+                    table.put(pair, false);
+                }
+            }
+        }
+
+        // Iteratively mark pairs as distinguishable
+        boolean changed = true;
+        while (changed) {
+            changed = false;
+
+            for (int i = 0; i < allStates.size(); i++) {
+                for (int j = i + 1; j < allStates.size(); j++) {
+                    DfaState s1 = allStates.get(i);
+                    DfaState s2 = allStates.get(j);
+                    Pair pair = new Pair(s1, s2);
+
+                    if (!table.get(pair)) { // If not yet marked as distinguishable
+                        for (char symbol : alphabet) {
+                            DfaState t1 = s1.getTransition(symbol);
+                            DfaState t2 = s2.getTransition(symbol);
+
+                            // If only one state has a transition for this symbol
+                            if ((t1 == null) != (t2 == null)) {
+                                table.put(pair, true);
+                                changed = true;
+                                break;
+                            }
+
+                            // If both have transitions, check if they lead to distinguishable states
+                            if (t1 != null && t2 != null && !t1.equals(t2)) {
+                                Pair tarPair = new Pair(t1, t2);
+                                if (table.get(tarPair)) {
+                                    table.put(pair, true);
+                                    changed = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Partition states into equivalence classes
+        List<Set<DfaState>> partitions = createPartitions(allStates, table);
+
+        // Create new minimized states for each partition
+        List<DfaState> minStates = new ArrayList<>();
+        Map<DfaState, DfaState> stMapping = new HashMap<>();
+
+        for (Set<DfaState> partition : partitions) {
+            Set<State> combinedNfaStates = new HashSet<>();
+            boolean isFinal = false;
+            TokenType tokenType = null;
+
+            for (DfaState state : partition) {
+                combinedNfaStates.addAll(state.nfaStates);
+                if (state.isFinal()) {
+                    isFinal = true;
+                    if (tokenType == null) {
+                        tokenType = state.getTokenType();
+                    }
+                }
+            }
+
+            DfaState newState = new DfaState(combinedNfaStates);
+            if (isFinal) {
+                newState.setFinal(true, tokenType);
+            }
             minStates.add(newState);
 
             // Map all states in this partition to the new state

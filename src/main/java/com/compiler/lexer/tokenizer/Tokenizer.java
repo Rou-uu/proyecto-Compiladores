@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.compiler.utility.FileReader;
-
+import com.compiler.lexer.DfaMinimizer;
 import com.compiler.lexer.NfaToDfaConverter;
 import com.compiler.lexer.dfa.DFA;
 import com.compiler.lexer.dfa.DfaState;
@@ -91,7 +91,8 @@ public class Tokenizer {
 
         MultiRuleBuilder builder = new MultiRuleBuilder();
         ComplexNFA complexNFA = builder.buildNfa(rules);
-        dfa = NfaToDfaConverter.convertComplexNfaToDfa(complexNFA, alphabet);
+        DFA prevDfa = NfaToDfaConverter.convertComplexNfaToDfa(complexNFA, alphabet);
+        dfa = DfaMinimizer.minimizeComplexDfa(prevDfa, alphabet);
     }
 
     /**
@@ -140,28 +141,24 @@ public class Tokenizer {
         TokenMatch lastMatch = null;
         int currPos = pos;
 
-        while (currPos < input.length() && curr != null) {
-            char symbol = input.charAt(currPos);
-
-            if (curr.isFinal()) {
-                String matchVal = input.substring(pos, currPos);
-                lastMatch = new TokenMatch(curr.getTokenType(), matchVal, pos, currPos);
-            } else {
-                lastMatch = null;
-            }
-
-            curr = curr.getTransition(symbol);
-            if (curr != null) {
-                currPos++;
-            }
-
-        }
-
-        if (curr != null && curr.isFinal()) {
+        // Check if start state is final
+        if (curr.isFinal()) {
             String matchVal = input.substring(pos, currPos);
             lastMatch = new TokenMatch(curr.getTokenType(), matchVal, pos, currPos);
-        } else {
-            lastMatch = null;
+        }
+
+        while (currPos < input.length() && curr != null) {
+            char symbol = input.charAt(currPos);
+            curr = curr.getTransition(symbol);
+
+            if (curr != null) {
+                currPos++;
+                // Check if this new state is final
+                if (curr.isFinal()) {
+                    String matchVal = input.substring(pos, currPos);
+                    lastMatch = new TokenMatch(curr.getTokenType(), matchVal, pos, currPos);
+                }
+            }
         }
 
         return lastMatch;
