@@ -2,7 +2,7 @@ package com.compiler.parser.lr;
 
 import java.util.List; // Asumiendo que existe una clase Token
 
-import com.compiler.lexer.Token;
+import com.compiler.lexer.tokenizer.Token;
 
 /**
  * Implements the LALR(1) parsing engine.

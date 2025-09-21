@@ -2,7 +2,7 @@ package com.compiler.parser.ll;
 
 import java.util.List;
 
-import com.compiler.lexer.Token;
+import com.compiler.lexer.tokenizer.Token;
 
 /**
  * Implements the LL(1) predictive parsing engine using the parsing table.
